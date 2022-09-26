@@ -61,13 +61,40 @@ mod tests {
         }
     }
 
+    struct TooHotMockCpuTemp;
+    impl CpuTempProvider for TooHotMockCpuTemp {
+        fn get_cpu_temp(&self) -> String {
+            "60000".to_string()
+        }
+    }
+
     #[test]
-    fn should_return_string_without_whitespaces_or_linebreaks() {
+    fn return_string_without_whitespaces_or_linebreaks() {
         let cpu = Cpu {
             provider: Box::new(MockCpuTemp),
             hysteresis: 5
         };
 
         assert_eq!("45000".to_string(), cpu.temp_string());
+    }
+
+    #[test]
+    fn is_not_hysteresis() {
+        let cpu = Cpu {
+            provider: Box::new(MockCpuTemp),
+            hysteresis: 5
+        };
+
+        assert!(cpu.cool_enough());
+    }
+
+    #[test]
+    fn is_too_hot() {
+        let cpu = Cpu {
+            provider: Box::new(TooHotMockCpuTemp),
+            hysteresis: 5
+        };
+
+        assert!(cpu.too_hot());
     }
 }
