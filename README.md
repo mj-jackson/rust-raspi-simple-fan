@@ -8,11 +8,15 @@ I made it because I didn't have a PWM fan and it was a nice little project to:
 * fiddle around with the Pi's GPIO pins
 * go a little deeper in rust programming
 
-The current solution is pretty much hard coded in terms of temperature and GPIO pin.
+**Three cli arguments are supported right now:**
+* `-t u8` for target temperature in °C, default: 55, eg. `-t 50` sets the target CPU temperature to 50°C
+* `-p u8` for pin as their BCM number, default: 14, eg. `-p 15` sets the used GPIO pin to BCM number 15
+* `-i u64` for interval in milliseconds, default: 3000, eg. `-i 1000` sets the check interval to 1000 milliseconds or 1 second
 
-* GPIO pin **14**
-* at cpu temp 55°C the GPIO Pin gets set to high
-* there is a hysteresis temp of 5°C, so the fan will stop when the cpu is at 50°C
+**Further information**
+* at the target cpu temperature the configured GPIO pin gets set to high
+* there is a hysteresis temperature of 5°C. At target temperature minus hysteresis temperature the configured GPIO pin gets set to low
+* Example: configured temperature is 55°C. The fan will start when CPU reaches `55°C` and try to cool it to `55-5 = 50°C` until it stops. This should help with the fan stoppen and starting right up again.
 
 ## Build target
 

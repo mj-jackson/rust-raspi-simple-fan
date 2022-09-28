@@ -15,9 +15,9 @@ pub struct Fan {
     pub control: Box<dyn FanControl>
 }
 impl Fan {
-    pub fn new() -> Self {
+    pub fn new(control: Box<dyn FanControl>) -> Self {
         Fan {
-            control: Box::new(GpioFan)
+            control
         }
     }
 }
@@ -28,11 +28,16 @@ pub trait FanControl {
     fn is_on(&self) -> bool;
 }
 
-pub struct GpioFan;
+pub struct GpioFan(u8);
 impl GpioFan {
-    const GPIO_PIN: u8 = 14;
+    pub fn new (fan_pin: u8) -> Self {
+        GpioFan(fan_pin)
+    }
+
     fn get_fan_pin(&self) -> Result<OutputPin, Error> {
-        let pin = Gpio::new()?.get(GpioFan::GPIO_PIN)?.into_output();
+        let mut pin = Gpio::new()?.get(self.0)?.into_output_low();
+        pin.set_reset_on_drop(false);
+
         Ok(pin)
     }
 }

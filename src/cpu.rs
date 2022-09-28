@@ -14,24 +14,25 @@ impl CpuTempProvider for CpuTemp {
 
 pub struct Cpu {
     provider: Box<dyn CpuTempProvider>,
+    target_temp: u8,
     hysteresis: u8,
 }
 impl Cpu {
-    const THRESHOLD: u8 = 55;
 
-    pub fn new() -> Cpu {
+    pub fn new(target_temp: u8) -> Cpu {
         Cpu {
             provider: Box::new(CpuTemp),
+            target_temp,
             hysteresis: 5
         }
     }
 
     pub fn too_hot(&self) -> bool {
-        self.get_temp() > Cpu::THRESHOLD.into()
+        self.get_temp() > self.target_temp.into()
     }
 
     pub fn cool_enough(&self) -> bool {
-        let hysteresis_temp = Cpu::THRESHOLD - self.hysteresis;
+        let hysteresis_temp = self.target_temp - self.hysteresis;
 
         self.get_temp() <= hysteresis_temp.into()
     }
@@ -72,6 +73,7 @@ mod tests {
     fn return_string_without_whitespaces_or_linebreaks() {
         let cpu = Cpu {
             provider: Box::new(MockCpuTemp),
+            target_temp: 55u8,
             hysteresis: 5
         };
 
@@ -82,6 +84,7 @@ mod tests {
     fn is_not_hysteresis() {
         let cpu = Cpu {
             provider: Box::new(MockCpuTemp),
+            target_temp: 55u8,
             hysteresis: 5
         };
 
@@ -92,6 +95,7 @@ mod tests {
     fn is_too_hot() {
         let cpu = Cpu {
             provider: Box::new(TooHotMockCpuTemp),
+            target_temp: 55u8,
             hysteresis: 5
         };
 

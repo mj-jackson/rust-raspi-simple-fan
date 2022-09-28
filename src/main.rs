@@ -1,17 +1,28 @@
 mod fan;
 mod cpu;
+mod cli;
 
 use std::error::Error;
+use std::str::FromStr;
 use std::thread;
 use std::time::Duration;
 
-use fan::Fan;
+use fan::{Fan, GpioFan};
 use cpu::Cpu;
 
+const TEMP_THRESHOLD: u8 = 55;
+const GPIO_PIN: u8 = 14;
+const SLEEP_INT: u64 = 3000;
+
 fn main() -> Result<(), Box<dyn Error>> {
+    let cpu_temp: u8 = get_val_or_def("-t", TEMP_THRESHOLD);
+    let fan_pin: u8 = get_val_or_def("-p", GPIO_PIN);
+    let sleep_millis: u64 = get_val_or_def("-i", SLEEP_INT);
+    
+    let fan_control = GpioFan::new(fan_pin);
+    let fan = Fan::new(Box::new(fan_control));
     loop {
-        let cpu = Cpu::new();
-        let fan = Fan::new();
+        let cpu = Cpu::new(cpu_temp);
 
         if fan.control.is_on() {
             if cpu.cool_enough() {
@@ -23,7 +34,18 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
 
-        println!("Loop done!");
-        thread::sleep(Duration::from_millis(3000));
+        thread::sleep(Duration::from_millis(sleep_millis));
     }
+}
+
+fn get_val_or_def<T: FromStr>(arg: &str, def: T) -> T {
+    let val_opt = cli::get_argument_value(arg);
+
+    if let Some(val) = val_opt {
+        if let Ok(int_val) = val.parse::<T>() {
+            return int_val;
+        }
+    }
+
+    def
 }
