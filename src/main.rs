@@ -19,18 +19,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let fan_pin: u8 = get_val_or_def("-p", GPIO_PIN);
     let sleep_millis: u64 = get_val_or_def("-i", SLEEP_INT);
     
-    let fan_control = GpioFan::new(fan_pin);
-    let fan = Fan::new(Box::new(fan_control));
+    let fan_control = GpioFan::new(fan_pin)?;
+    let mut fan = Fan::new(Box::new(fan_control));
     loop {
         let cpu = Cpu::new(cpu_temp);
 
         if fan.control.is_on() {
             if cpu.cool_enough() {
-                fan.control.turn_off()?
+                fan.control.turn_off();
             }
         } else {
             if cpu.too_hot() {
-                fan.control.turn_on()?
+                fan.control.turn_on();
             }
         }
 

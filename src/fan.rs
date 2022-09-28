@@ -23,43 +23,29 @@ impl Fan {
 }
 
 pub trait FanControl {
-    fn turn_on(&self) -> Result<(), FanError>;
-    fn turn_off(&self) -> Result<(), FanError>;
+    fn turn_on(&mut self);
+    fn turn_off(&mut self);
     fn is_on(&self) -> bool;
 }
 
-pub struct GpioFan(u8);
+pub struct GpioFan(OutputPin);
 impl GpioFan {
-    pub fn new (fan_pin: u8) -> Self {
-        GpioFan(fan_pin)
-    }
+    pub fn new(fan_pin: u8) -> Result<Self, Error> {
+        let pin = Gpio::new()?.get(fan_pin)?.into_output();
 
-    fn get_fan_pin(&self) -> Result<OutputPin, Error> {
-        let mut pin = Gpio::new()?.get(self.0)?.into_output_low();
-        pin.set_reset_on_drop(false);
-
-        Ok(pin)
+        Ok(GpioFan(pin))
     }
 }
 impl FanControl for GpioFan {
-    fn turn_on(&self) -> Result<(), FanError> {
-        match self.get_fan_pin() {
-            Ok(mut pin) => Ok(pin.set_high()),
-            Err(_) => Err(FanError)
-        }
+    fn turn_on(&mut self) {
+        self.0.set_high();
     }
 
-    fn turn_off(&self) -> Result<(), FanError> {
-        match self.get_fan_pin() {
-            Ok(mut pin) => Ok(pin.set_low()),
-            Err(_) => Err(FanError)
-        }
+    fn turn_off(&mut self) {
+        self.0.set_low();
     }
 
     fn is_on(&self) -> bool {
-        match self.get_fan_pin() {
-            Ok(pin) => pin.is_set_high(),
-            Err(_) => false
-        }
+        self.0.is_set_high()
     }
 }
