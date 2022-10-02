@@ -21,8 +21,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     
     let fan_control = GpioFan::new(fan_pin)?;
     let mut fan = Fan::new(Box::new(fan_control));
+    let cpu = Cpu::new(cpu_temp);
     loop {
-        let cpu = Cpu::new(cpu_temp);
 
         if fan.control.is_on() {
             if cpu.cool_enough() {
