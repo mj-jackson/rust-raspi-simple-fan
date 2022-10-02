@@ -9,9 +9,6 @@ version = "0.1.0"
 [[package]]
 name = "fan"
 version = "0.1.0"
-dependencies = [
- "rppal",
-]
 
 [[package]]
 name = "lazy_static"
@@ -31,6 +28,7 @@ version = "2.0.1"
 dependencies = [
  "cpu",
  "fan",
+ "rppal",
 ]
 
 [[package]]

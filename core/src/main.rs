@@ -1,4 +1,5 @@
 mod cli;
+mod gpio_fan;
 
 use std::error::Error;
 use std::str::FromStr;
@@ -6,7 +7,8 @@ use std::thread;
 use std::time::Duration;
 
 use cpu::Cpu;
-use fan::{Fan, GpioFan};
+use fan::Fan;
+use gpio_fan::GpioFan;
 
 const TEMP_THRESHOLD: u8 = 55;
 const GPIO_PIN: u8 = 14;
