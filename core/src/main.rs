@@ -1,5 +1,6 @@
 mod cli;
 mod gpio_fan;
+mod raspi_cpu;
 
 use std::error::Error;
 use std::str::FromStr;
@@ -9,6 +10,7 @@ use std::time::Duration;
 use cpu::Cpu;
 use fan::Fan;
 use gpio_fan::GpioFan;
+use raspi_cpu::RaspiCpuTemp;
 
 const TEMP_THRESHOLD: u8 = 55;
 const GPIO_PIN: u8 = 14;
@@ -21,7 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     
     let fan_control = GpioFan::new(fan_pin)?;
     let mut fan = Fan::new(Box::new(fan_control));
-    let cpu = Cpu::new(cpu_temp);
+    let cpu = Cpu::new(cpu_temp, Box::new(RaspiCpuTemp));
     loop {
 
         if fan.control.is_on() {
@@ -36,14 +38,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 }
 
-fn get_val_or_def<T: FromStr>(arg: &str, def: T) -> T {
+fn get_val_or_def<T: ToString + FromStr>(arg: &str, def: T) -> T {
     let val_opt = cli::get_argument_value(arg);
-
-    if let Some(val) = val_opt {
-        if let Ok(int_val) = val.parse::<T>() {
-            return int_val;
-        }
+    
+    match val_opt {
+        Some(val) => val.parse().unwrap_or(def),
+        None => def
     }
-
-    def
 }

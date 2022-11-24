@@ -1,18 +1,6 @@
-use std::{fs, path::Path};
-
 /// Simple trait for providing the CPU temperature
-trait CpuTempProvider {
+pub trait CpuTempProvider {
     fn get_cpu_temp(&self) -> String;
-}
-
-/// The CPU temperature
-struct CpuTemp;
-impl CpuTempProvider for CpuTemp {
-    /// A simple function to return the CPU temperature as a String
-    fn get_cpu_temp(&self) -> String {
-        let cpu_temp_path = Path::new("/sys/class/thermal/thermal_zone0/temp");
-        fs::read_to_string(cpu_temp_path).expect("File should be readable")
-    }
 }
 
 /// The CPU in regards of the temperature is represented here.
@@ -28,9 +16,9 @@ pub struct Cpu {
 impl Cpu {
 
     /// Right now only the `target_temp` is needed, `provider` and `hysteresis` is hard coded for now
-    pub fn new(target_temp: u8) -> Cpu {
+    pub fn new(target_temp: u8, temp_prov: Box<dyn CpuTempProvider>) -> Cpu {
         Cpu {
-            provider: Box::new(CpuTemp),
+            provider: temp_prov,
             target_temp,
             hysteresis: 5
         }
