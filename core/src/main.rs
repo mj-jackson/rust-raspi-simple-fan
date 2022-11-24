@@ -28,10 +28,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             if cpu.cool_enough() {
                 fan.control.turn_off();
             }
-        } else {
-            if cpu.too_hot() {
-                fan.control.turn_on();
-            }
+        } else if cpu.too_hot() {
+            fan.control.turn_on();
         }
 
         thread::sleep(Duration::from_millis(sleep_millis));

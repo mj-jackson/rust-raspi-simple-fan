@@ -9,10 +9,7 @@ pub fn get_argument_value(arg: &str) -> Option<String> {
             let index = position + 1;
             let result = args_vec.get(index);
             
-            match result {
-                Some(value) => Some(value.to_owned()),
-                None => None
-            }
+            result.map(|value| value.to_owned())
         },
         None => None
     }
