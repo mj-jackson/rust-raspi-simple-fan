@@ -1,6 +1,7 @@
 use rppal::gpio::{Gpio, OutputPin, Error};
 use fan::FanControl;
 
+/// Abstraction for rppals GPIO crate.
 pub struct GpioFan(OutputPin);
 impl GpioFan {
 

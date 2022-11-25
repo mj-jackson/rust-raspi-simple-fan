@@ -1,48 +1,51 @@
 /// Simple trait for providing the CPU temperature
+/// Implement this trait and return the temperature as an
+/// `unsigned 8 bit integer` in degree `Celcius`.
 pub trait CpuTempProvider {
-    fn get_cpu_temp(&self) -> String;
+    fn get_cpu_temp(&self) -> u8;
 }
 
 /// The CPU in regards of the temperature is represented here.
-/// # Arguments
+/// ### Arguments
 /// * `provider` - A boxed instance of a CpuTempProvider Trait implementation
 /// * `target_temp` - The temperature at which the CPU state is "too_hot"
 /// * `hysteresis` - target_temp minus hysteresis is needed for the CPU to count as cool_enough again
-pub struct Cpu {
-    provider: Box<dyn CpuTempProvider>,
+pub struct Cpu<'a> {
+    provider: &'a dyn CpuTempProvider,
     target_temp: u8,
     hysteresis: u8,
 }
-impl Cpu {
+impl <'a> Cpu<'a> {
 
-    /// Right now only the `target_temp` is needed, `provider` and `hysteresis` is hard coded for now
-    pub fn new(target_temp: u8, temp_prov: Box<dyn CpuTempProvider>) -> Cpu {
+    /// Provide the monitored temperature and the provider of the CPU temperature
+    pub fn new(target_temp: u8, provider: &'a dyn CpuTempProvider) -> Cpu {
         Cpu {
-            provider: temp_prov,
+            provider,
             target_temp,
             hysteresis: 5
         }
     }
 
+    /// Simple check to see if the `current temperature` is
+    /// greater than `target temperature`
     pub fn too_hot(&self) -> bool {
-        self.get_temp() > self.target_temp.into()
+        self.get_temp() > self.target_temp
     }
 
+    /// Check to see if the `current temperature` is
+    /// smaller than the `target temperature` minus `hysteresis`.
+    /// This happens in order to have a buffer zone.
+    /// Otherwise the fan could be in a state where it starts
+    /// and stops all the time.
     pub fn cool_enough(&self) -> bool {
         let hysteresis_temp = self.target_temp - self.hysteresis;
 
-        self.get_temp() <= hysteresis_temp.into()
+        self.get_temp() <= hysteresis_temp
     }
 
-    pub fn get_temp(&self) -> u32 {
-        match self.temp_string().parse::<u32>() {
-            Ok(temp) => temp / 1000,
-            Err(_) => 0
-        }
-    }
-
-    fn temp_string(&self) -> String {
-        self.provider.get_cpu_temp().trim().to_string()
+    /// Get the `current temperature`.
+    pub fn get_temp(&self) -> u8 {
+        self.provider.get_cpu_temp()
     }
 }
 
@@ -52,35 +55,33 @@ mod tests {
 
     struct MockCpuTemp;
     impl CpuTempProvider for MockCpuTemp {
-        fn get_cpu_temp(&self) -> String {
-            "
-             45000 
-            ".to_string()
+        fn get_cpu_temp(&self) -> u8 {
+            45u8
         }
     }
 
     struct TooHotMockCpuTemp;
     impl CpuTempProvider for TooHotMockCpuTemp {
-        fn get_cpu_temp(&self) -> String {
-            "60000".to_string()
+        fn get_cpu_temp(&self) -> u8 {
+            60u8
         }
     }
 
     #[test]
     fn return_string_without_whitespaces_or_linebreaks() {
         let cpu = Cpu {
-            provider: Box::new(MockCpuTemp),
+            provider: &MockCpuTemp,
             target_temp: 55u8,
             hysteresis: 5
         };
 
-        assert_eq!("45000".to_string(), cpu.temp_string());
+        assert_eq!(45u8, cpu.get_temp());
     }
 
     #[test]
     fn is_not_hysteresis() {
         let cpu = Cpu {
-            provider: Box::new(MockCpuTemp),
+            provider: &MockCpuTemp,
             target_temp: 55u8,
             hysteresis: 5
         };
@@ -91,7 +92,7 @@ mod tests {
     #[test]
     fn is_too_hot() {
         let cpu = Cpu {
-            provider: Box::new(TooHotMockCpuTemp),
+            provider: &TooHotMockCpuTemp,
             target_temp: 55u8,
             hysteresis: 5
         };

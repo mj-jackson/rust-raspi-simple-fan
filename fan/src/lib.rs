@@ -1,25 +1,19 @@
-use std::{fmt, error};
-
-#[derive(Debug, Clone)]
-pub struct FanError;
-impl fmt::Display for FanError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Error controlling the fan!")
-    }
+/// Simple Fan trait which only takes a FanControl
+pub struct Fan<'a, T: FanControl> {
+    pub control: &'a mut T
 }
-impl error::Error for FanError {}
 
-pub struct Fan {
-    pub control: Box<dyn FanControl>
-}
-impl Fan {
-    pub fn new(control: Box<dyn FanControl>) -> Self {
+/// Provide new method to instantiate Fan struct
+impl <'a, T: FanControl> Fan<'a, T> {
+    pub fn new(control: &'a mut T) -> Self {
         Fan {
             control
         }
     }
 }
 
+/// Basic FanControl struct to control fan
+/// and check current status
 pub trait FanControl {
     fn turn_on(&mut self);
     fn turn_off(&mut self);
