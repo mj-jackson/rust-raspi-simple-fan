@@ -1,12 +1,11 @@
-use rppal::gpio::{Gpio, OutputPin, Error};
 use fan::FanControl;
+use rppal::gpio::{Error, Gpio, OutputPin};
 
 /// Abstraction for rppals GPIO crate.
 pub struct GpioFan(OutputPin);
 impl GpioFan {
-
     /// Creates a new GPIO output pin which then can be controlled.
-    /// 
+    ///
     /// ```should_panic
     /// let _pin = GpioFan::new(123u8);
     /// ```

@@ -15,14 +15,13 @@ pub struct Cpu<'a> {
     target_temp: u8,
     hysteresis: u8,
 }
-impl <'a> Cpu<'a> {
-
+impl<'a> Cpu<'a> {
     /// Provide the monitored temperature and the provider of the CPU temperature
     pub fn new(target_temp: u8, provider: &'a dyn CpuTempProvider) -> Cpu {
         Cpu {
             provider,
             target_temp,
-            hysteresis: 5
+            hysteresis: 5,
         }
     }
 
@@ -72,7 +71,7 @@ mod tests {
         let cpu = Cpu {
             provider: &MockCpuTemp,
             target_temp: 55u8,
-            hysteresis: 5
+            hysteresis: 5,
         };
 
         assert_eq!(45u8, cpu.get_temp());
@@ -83,7 +82,7 @@ mod tests {
         let cpu = Cpu {
             provider: &MockCpuTemp,
             target_temp: 55u8,
-            hysteresis: 5
+            hysteresis: 5,
         };
 
         assert!(cpu.cool_enough());
@@ -94,7 +93,7 @@ mod tests {
         let cpu = Cpu {
             provider: &TooHotMockCpuTemp,
             target_temp: 55u8,
-            hysteresis: 5
+            hysteresis: 5,
         };
 
         assert!(cpu.too_hot());

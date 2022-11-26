@@ -1,14 +1,12 @@
 /// Simple Fan trait which only takes a FanControl
 pub struct Fan<'a, T: FanControl> {
-    pub control: &'a mut T
+    pub control: &'a mut T,
 }
 
 /// Provide new method to instantiate Fan struct
-impl <'a, T: FanControl> Fan<'a, T> {
+impl<'a, T: FanControl> Fan<'a, T> {
     pub fn new(control: &'a mut T) -> Self {
-        Fan {
-            control
-        }
+        Fan { control }
     }
 }
 

@@ -20,12 +20,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let cpu_temp: u8 = get_val_or_def("-t", TEMP_THRESHOLD);
     let fan_pin: u8 = get_val_or_def("-p", GPIO_PIN);
     let sleep_millis: u64 = get_val_or_def("-i", SLEEP_INT);
-    
+
     let mut fan_control = GpioFan::new(fan_pin)?;
     let fan = Fan::new(&mut fan_control);
     let cpu = Cpu::new(cpu_temp, &RaspiCpuTemp);
     loop {
-
         if fan.control.is_on() {
             if cpu.cool_enough() {
                 fan.control.turn_off();
@@ -40,9 +39,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn get_val_or_def<T: ToString + FromStr>(arg: &str, def: T) -> T {
     let val_opt = cli::get_argument_value(arg);
-    
+
     match val_opt {
         Some(val) => val.parse().unwrap_or(def),
-        None => def
+        None => def,
     }
 }
