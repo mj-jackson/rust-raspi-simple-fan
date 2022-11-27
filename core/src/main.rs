@@ -8,7 +8,7 @@ use std::thread;
 use std::time::Duration;
 
 use cpu::Cpu;
-use fan::{Fan, FanControl};
+use fan::Fan;
 use gpio_fan::GpioFan;
 use raspi_cpu::RaspiCpuTemp;
 
@@ -22,15 +22,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     let sleep_millis: u64 = get_val_or_def("-i", SLEEP_INT);
 
     let mut fan_control = GpioFan::new(fan_pin)?;
-    let fan = Fan::new(&mut fan_control);
+    let mut fan = Fan::new(&mut fan_control);
     let cpu = Cpu::new(cpu_temp, &RaspiCpuTemp);
     loop {
-        if fan.control.is_on() {
+        if fan.is_on() {
             if cpu.cool_enough() {
-                fan.control.turn_off();
+                fan.off();
             }
         } else if cpu.too_hot() {
-            fan.control.turn_on();
+            fan.on();
         }
 
         thread::sleep(Duration::from_millis(sleep_millis));
