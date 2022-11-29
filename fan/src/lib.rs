@@ -1,6 +1,6 @@
 enum FanStatus {
-    On,
     Off,
+    On,
 }
 
 /// Simple Fan trait which only takes a FanControl
