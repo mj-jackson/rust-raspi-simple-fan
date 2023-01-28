@@ -11,7 +11,9 @@ impl CpuTempProvider for RaspiCpuTemp {
         let val = fs::read_to_string(cpu_temp_path).expect("File should be readable");
 
         match val.trim().parse::<u32>() {
-            Ok(temp) => (temp / 1000).try_into().unwrap_or_default(),
+            Ok(temp) => (temp / 1000)
+                .try_into()
+                .expect("Input should be parsable into u32"),
             Err(_) => 0,
         }
     }

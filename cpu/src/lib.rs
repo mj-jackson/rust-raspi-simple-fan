@@ -10,14 +10,15 @@ pub trait CpuTempProvider {
 /// * `provider` - A boxed instance of a CpuTempProvider Trait implementation
 /// * `target_temp` - The temperature at which the CPU state is "too_hot"
 /// * `hysteresis` - target_temp minus hysteresis is needed for the CPU to count as cool_enough again
-pub struct Cpu<'a> {
-    provider: &'a dyn CpuTempProvider,
+pub struct Cpu<'a, T: CpuTempProvider> {
+    provider: &'a T,
     target_temp: u8,
     hysteresis: u8,
 }
-impl<'a> Cpu<'a> {
+
+impl<'a, T: CpuTempProvider> Cpu<'a, T> {
     /// Provide the monitored temperature and the provider of the CPU temperature
-    pub fn new(target_temp: u8, provider: &'a dyn CpuTempProvider) -> Cpu {
+    pub fn new(target_temp: u8, provider: &'a T) -> Self {
         Cpu {
             provider,
             target_temp,

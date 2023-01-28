@@ -38,7 +38,7 @@ impl<'a, T: FanControl> Fan<'a, T> {
     }
 }
 
-/// Basic FanControl struct to control fan
+/// Basic FanControl trait to control fan
 /// and check current status
 pub trait FanControl {
     fn turn_on(&mut self);
