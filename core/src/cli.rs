@@ -1,7 +1,8 @@
-use std::env;
-
-pub fn get_argument_value(arg: &str) -> Option<String> {
-    let args_vec: Vec<String> = env::args().collect();
+pub fn get_argument_value<T>(arg: &str, args: T) -> Option<String>
+where
+    T: IntoIterator<Item = String>,
+{
+    let args_vec: Vec<String> = args.into_iter().collect();
     let pos = args_vec.iter().position(|value| value == arg);
 
     pos.map(|p| {

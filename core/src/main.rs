@@ -5,8 +5,8 @@ mod raspi_cpu;
 mod rppal_pin;
 
 use std::str::FromStr;
-use std::thread;
 use std::time::Duration;
+use std::{env, thread};
 
 use cpu::Cpu;
 use error::PinError;
@@ -22,9 +22,9 @@ const GPIO_PIN: u8 = 14;
 const SLEEP_INT: u64 = 3000;
 
 fn main() -> Result<(), PinError> {
-    let cpu_temp: u8 = get_val_or_def("-t", TEMP_THRESHOLD);
-    let fan_pin: u8 = get_val_or_def("-p", GPIO_PIN);
-    let sleep_millis: u64 = get_val_or_def("-i", SLEEP_INT);
+    let cpu_temp: u8 = get_arg_value("-t").unwrap_or(TEMP_THRESHOLD);
+    let fan_pin: u8 = get_arg_value("-p").unwrap_or(GPIO_PIN);
+    let sleep_millis: u64 = get_arg_value("-i").unwrap_or(SLEEP_INT);
 
     let pin = OutputPin::new(fan_pin)?;
     let mut fan_control = GpioFan::new(pin);
@@ -43,11 +43,6 @@ fn main() -> Result<(), PinError> {
     }
 }
 
-fn get_val_or_def<T: ToString + FromStr>(arg: &str, def: T) -> T {
-    let val_opt = cli::get_argument_value(arg);
-
-    match val_opt {
-        Some(val) => val.parse().unwrap_or(def),
-        None => def,
-    }
+fn get_arg_value<T: FromStr>(arg: &str) -> Option<T> {
+    cli::get_argument_value(arg, env::args())?.parse().ok()
 }
